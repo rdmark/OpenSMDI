@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0060)http://java.sun.com/docs/books/tutorial/native1.1/index.html -->
+<HTML><HEAD><TITLE>Java Native Interface</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<SCRIPT language=JavaScript>
+<!-- hide
+function openWin(term) {
+  url="../information/glossary.html#" + term;
+  myWin= window.open(url, "Glossary",
+              "width=400,height=150,scrollbars=yes,status=no,toolbar=no,menubar=no");
+  myWin.focus();
+}
+//-->
+</SCRIPT>
+
+<META content="MSHTML 5.00.3315.2870" name=GENERATOR></HEAD>
+<BODY bgColor=#ffffff link=#000099><B><FONT size=-1>The Java</FONT><SUP><FONT 
+size=-2>TM</FONT></SUP> <FONT size=-1>Tutorial</FONT></B> <BR>
+<TABLE width=550 summary="layout">
+  <TBODY>
+  <TR>
+    <TD align=left vAlign=center><A 
+      href="http://java.sun.com/docs/books/tutorial/index.html" target=_top><IMG 
+      align=center alt="Previous Page" border=0 height=26 
+      src="Java Native Interface_files/PreviousArrow.gif" width=26></A> <A 
+      href="http://java.sun.com/docs/books/tutorial/native1.1/TOC.html" 
+      target=_top><IMG align=center alt="Trail Contents" border=0 height=26 
+      src="Java Native Interface_files/TOCIcon.gif" width=26></A> <A 
+      href="http://java.sun.com/docs/books/tutorial/native1.1/concepts/index.html" 
+      target=_top><IMG align=center alt="Next Page" border=0 height=26 
+      src="Java Native Interface_files/NextArrow.gif" width=26></A></TD>
+    <TD align=middle vAlign=center><FONT size=-1><A 
+      href="http://java.sun.com/docs/books/tutorial/index.html" 
+      target=_top>Start of Tutorial</A> </FONT></TD>
+    <TD align=right vAlign=center><FONT size=-1><A 
+      href="http://java.sun.com/docs/books/tutorial/search.html" 
+      target=_top>Search</A> <BR><A 
+      href="http://java.sun.com/docs/books/tutorial/forms/sendusmail.html">Feedback 
+      Form</A> </FONT></TD></TR></TBODY></TABLE><IMG align=bottom alt="" height=8 
+src="Java Native Interface_files/blueline.gif" width=550 NATURALSIZEFLAG="3"> 
+<BR>
+<H2>Trail: Java Native Interface </H2>
+<BLOCKQUOTE>
+  <P></P></BLOCKQUOTE>
+<H3><EM>by <A 
+href="http://java.sun.com/docs/books/tutorial/information/bios.html#stearns">Beth 
+Stearns</A></EM></H3>
+<P>The lessons in this trail show you how to integrate native code with programs 
+written in Java. You will learn how to write <EM>native methods</EM>. Native 
+methods are methods implemented in another programming language such as C. 
+<P><STRONG>The JNI is for programmers who must take advantage of 
+platform-specific functionality outside of the Java Virtual Machine. Because of 
+this, it is recommended that only experienced programmers should attempt to 
+write native methods or use the Invocation API!</STRONG> 
+<P><!--    Overview of the JNI    -->
+<P><A 
+href="http://java.sun.com/docs/books/tutorial/native1.1/concepts/index.html"><IMG 
+align=left border=0 height=20 src="Java Native Interface_files/nativeIcon.gif" 
+width=20> <B>Overview of the JNI</B> </A>begins with an introduction to the JNI 
+concepts. <!--    Writing Java Programs with Native Methods    -->
+<P><A 
+href="http://java.sun.com/docs/books/tutorial/native1.1/stepbystep/index.html"><IMG 
+align=left border=0 height=20 src="Java Native Interface_files/nativeIcon.gif" 
+width=20> <B>Writing Java Programs with Native Methods</B> </A>describes how to 
+compile and run a Java program with a native method. It walks you step by step 
+through a simple example (the "Hello World!" of native methods) to illustrate 
+how to write, compile, and run a Java program that includes native methods. <!--    Integrating Java and Native Programs    -->
+<P><A 
+href="http://java.sun.com/docs/books/tutorial/native1.1/integrating/index.html"><IMG 
+align=left border=0 height=20 src="Java Native Interface_files/nativeIcon.gif" 
+width=20> <B>Integrating Java and Native Programs</B> </A>shows you how to map 
+Java types to native types. This lesson includes information about passing 
+arguments of various data types into a native method and returning values of 
+various data types from a native method. It also shows how to implement a native 
+method within a Java program. <!--    INTERACTING WITH JAVA FROM THE NATIVE SIDE    -->
+<P><A 
+href="http://java.sun.com/docs/books/tutorial/native1.1/implementing/index.html"><IMG 
+align=left border=0 height=20 src="Java Native Interface_files/nativeIcon.gif" 
+width=20> <B>Interacting with Java from the Native Side</B> </A>describes many 
+useful functions that your native language code can use to access Java objects 
+and their members, create Java objects, throw exceptions, and more. <!--    INVOKING THE JAVA VIRTUAL MACHINE    -->
+<P><A 
+href="http://java.sun.com/docs/books/tutorial/native1.1/invoking/index.html"><IMG 
+align=left border=0 height=20 src="Java Native Interface_files/nativeIcon.gif" 
+width=20> <B>Invoking the Java Virtual Machine</B> </A>explains how to invoke 
+the Java Virtual Machine from your native application. <!--    SUMMARY    -->
+<P><A 
+href="http://java.sun.com/docs/books/tutorial/native1.1/summary/index.html"><IMG 
+align=left border=0 height=20 src="Java Native Interface_files/nativeIcon.gif" 
+width=20> <B>Summary of the JNI</B> </A>lists the JNI methods and mapping tables 
+to remind you of what you've learned. 
+<P>
+<BLOCKQUOTE>
+  <HR>
+  <STRONG>Note:</STRONG>&nbsp;
+  <TABLE border=0 width="85%">
+    <TBODY>
+    <TR>
+      <TD><A 
+        href="http://www.amazon.com/exec/obidos/ASIN/0201325772/javasoftsunmicroA/002-7429305-8183042">
+        <P>
+        <CENTER><IMG align=bottom alt="" height=140 
+        src="Java Native Interface_files/native.gif" width=111 
+        NATURALSIZEFLAG="3"></CENTER>
+        <P></P></A></TD><FONT size=-1>Available now from <A 
+      href="http://www.amazon.com/exec/obidos/ASIN/0201325772/javasoftsunmicroA/002-7429305-8183042" 
+      target=_blank><FONT color=#009bbb>amazon.com</FONT></A><A 
+      href="http://www.amazon.com/exec/obidos/ASIN/0201325772/javasoftsunmicroA/002-7429305-8183042" 
+      target=_blank><IMG align=absMiddle alt=" (outside of the tutorial)" 
+      border=0 height=11 src="Java Native Interface_files/otherIcon.gif" 
+      width=11></A> </FONT>
+      <TD>For more complete information, refer to the new book, <EM>The 
+        Java<SUP><FONT size=-2>TM</FONT></SUP> Native Interface: Programmer's 
+        Guide and Specification</EM> written by Sheng Liang. Published by 
+        Addison Wesley Longman, Inc. June 1999. 
+        <P>This book is the definitive resource and a comprehensive guide to 
+        working with the JNI. Entirely up-to-date, the book offers a tutorial, a 
+        detailed description of JNI features and programming techniques, JNI 
+        design justifications, and the official specification for all JNI types 
+        and functions. </P></TD></TR></TBODY></TABLE>
+  <HR>
+</BLOCKQUOTE>
+<P>
+<BLOCKQUOTE>
+  <HR>
+  <STRONG>Security consideration:</STRONG>&nbsp; Note that the ability to load 
+  dynamic libraries is subject to approval by the current security manager. When 
+  working with native methods, you must load dynamic libraries. Some applets may 
+  not be able to use native methods because the browser or viewer they are 
+  running in restricts the ability to load dynamic libraries. See <A 
+  href="http://java.sun.com/docs/books/tutorial/applet/practical/security.html" 
+  target=_top>Security Restrictions</A><A 
+  href="http://java.sun.com/docs/books/tutorial/applet/practical/security.html" 
+  target=_top><IMG align=absMiddle alt=" (in the Java Native Interface trail)" 
+  border=0 height=11 src="Java Native Interface_files/tutorialIcon.gif" 
+  width=11></A> for information about the security restrictions placed on 
+  applets. 
+  <HR>
+  <STRONG>Note:</STRONG> MacOS programmers should refer to <A 
+  href="http://devworld.apple.com/java/" target=_blank><FONT color=#009bbb>MacOS 
+  Runtime for Java</FONT></A><A href="http://devworld.apple.com/java/" 
+  target=_blank><IMG align=absMiddle alt=" (outside of the tutorial)" border=0 
+  height=11 src="Java Native Interface_files/otherIcon.gif" width=11></A>. 
+  <HR>
+</BLOCKQUOTE><FONT size=-1>Programmers interested in writing native methods in 
+releases prior to 1.1 can <A 
+href="ftp://ftp.javasoft.com/docs/tut-native1dot0.zip">download</A> the old 
+version of this trail. It describes native methods for the 1.0.2 release of the 
+JDK. </FONT>
+<BLOCKQUOTE></BLOCKQUOTE><IMG align=bottom alt="" height=8 
+src="Java Native Interface_files/blueline.gif" width=550 NATURALSIZEFLAG="3"> 
+<BR>
+<TABLE width=550 summary="layout">
+  <TBODY>
+  <TR>
+    <TD align=left vAlign=center><A 
+      href="http://java.sun.com/docs/books/tutorial/index.html" target=_top><IMG 
+      align=center alt="Previous Page" border=0 height=26 
+      src="Java Native Interface_files/PreviousArrow.gif" width=26></A> <A 
+      href="http://java.sun.com/docs/books/tutorial/native1.1/TOC.html" 
+      target=_top><IMG align=center alt="Trail Contents" border=0 height=26 
+      src="Java Native Interface_files/TOCIcon.gif" width=26></A> <A 
+      href="http://java.sun.com/docs/books/tutorial/native1.1/concepts/index.html" 
+      target=_top><IMG align=center alt="Next Page" border=0 height=26 
+      src="Java Native Interface_files/NextArrow.gif" width=26></A></TD>
+    <TD align=middle vAlign=center><FONT size=-1><A 
+      href="http://java.sun.com/docs/books/tutorial/index.html" 
+      target=_top>Start of Tutorial</A> </FONT></TD>
+    <TD align=right vAlign=center><FONT size=-1><A 
+      href="http://java.sun.com/docs/books/tutorial/search.html" 
+      target=_top>Search</A> <BR><A 
+      href="http://java.sun.com/docs/books/tutorial/forms/sendusmail.html">Feedback 
+      Form</A> </FONT></TD></TR></TBODY></TABLE>
+<P><FONT size=-1><A 
+href="http://java.sun.com/docs/books/tutorial/information/copyright.html">Copyright</A> 
+1995-2003 Sun Microsystems, Inc. All rights reserved. </FONT></P></BODY></HTML>
