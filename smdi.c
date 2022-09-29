@@ -629,8 +629,9 @@ SMDI_InitSampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo )
 		  while (unitready==FALSE)
 			{
 #ifdef _linux_
-			  __sleep(100);
-			  printf("Waiting for unit to become ready\n");
+				struct timespec delta = {0, 100000};
+				while(nanosleep(&delta, &delta));
+				printf("Waiting for unit to become ready\n");
 #endif
 #ifdef _win32_
 			  __sleep(500);
@@ -694,8 +695,8 @@ SMDI_SampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo )
 	  while (ur==FALSE)
 		{
 #ifdef _linux_
-		  __sleep(100);
-
+			struct timespec delta = {0, 100000};
+			while(nanosleep(&delta, &delta));
 #endif
 #ifdef _win32_
 		  __sleep(500);
