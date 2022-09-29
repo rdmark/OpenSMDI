@@ -30,14 +30,14 @@ e-Mail: chnowak@web.de
 
 
 // The target Operating System. Only define one at a time.
-// #define _linux_
+#define _linux_
 // #define _win32_
 
 // The target processor. Only define one at a time.
 #define _x86_
 
 // Some compilers use "sleep", others "Sleep" - adjust it here if neccessary
-#define __sleep(a) Sleep(a)
+#define __sleep(a) usleep(a)
 
 // Macros for endian-adjusting
 #define POFFSET(a, b) ((void *) (((unsigned long) (a)) + (b)))
@@ -449,13 +449,16 @@ SMDI_SampleHeaderRequest ( unsigned char ha_id,
       memcpy ( sh.cName, 
 	       &smdicmd[37], 
 	       (unsigned long) sh.NameLength );	/* Name */
+
     } else
       {
 	sh.bDoesExist = FALSE;
       }
   memcpy ( shTemp, &sh, GetStructSize ( &sh ) );
+
   if ( sh.bDoesExist == TRUE )
     {
+
       return (SMDI_GetWholeMessageID(smdicmd));
     } else
       {
@@ -616,29 +619,30 @@ SMDI_InitSampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo )
   if (messRet == SMDIM_TRANSFERACKNOWLEDGE)
     {
       messRet = 
-	SMDI_SendBeginSampleTransfer ( TransmissionInfo.HA_ID,
+		SMDI_SendBeginSampleTransfer ( TransmissionInfo.HA_ID,
                                        TransmissionInfo.SCSI_ID, 
-				       TransmissionInfo.dwSampleNumber, 
-				       &TransmissionInfo.dwPacketSize );
+									   TransmissionInfo.dwSampleNumber, 
+									   &TransmissionInfo.dwPacketSize );
       if (messRet == SMDIM_WAIT)
-	{
-	  unitready = FALSE;
-	  while (unitready==FALSE)
-	    {
+		{
+		  unitready = FALSE;
+		  while (unitready==FALSE)
+			{
 #ifdef _linux_
-	      __sleep(1);
+			  __sleep(100);
+			  printf("Waiting for unit to become ready\n");
 #endif
 #ifdef _win32_
-	      __sleep(500);
+			  __sleep(500);
 #endif
-	      unitready = ASPI_TestUnitReady ( TransmissionInfo.HA_ID, 
+			  unitready = ASPI_TestUnitReady ( TransmissionInfo.HA_ID, 
                                                TransmissionInfo.SCSI_ID );
-	    }
-	  messRet = SMDI_GetMessage ( TransmissionInfo.HA_ID, 
+			}
+		  messRet = SMDI_GetMessage ( TransmissionInfo.HA_ID, 
                                       TransmissionInfo.SCSI_ID );
-	}
+		}
     }
-
+  
   if (messRet==SMDIM_MESSAGEREJECT)
     return (SMDI_GetLastError());
 
@@ -658,6 +662,7 @@ SMDI_SampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo )
   unsigned long messRet;
   unsigned long TransmittedBytes;
   unsigned long SamLength;
+  unsigned long timeout;
 
   memcpy ( &TransmissionInfo, 
 	   lpTransmissionInfo, 
@@ -679,21 +684,60 @@ SMDI_SampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo )
   messRet = 
     SMDI_SendDataPacket ( TransmissionInfo.HA_ID,
                           TransmissionInfo.SCSI_ID, 
-			  TransmissionInfo.dwTransmittedPackets, 
-			  TransmissionInfo.lpSampleData, 
-			  TransmissionInfo.dwPacketSize, 
-			  TransmissionInfo.dwCopyMode );
+						  TransmissionInfo.dwTransmittedPackets, 
+						  TransmissionInfo.lpSampleData, 
+						  TransmissionInfo.dwPacketSize, 
+						  TransmissionInfo.dwCopyMode );
+  if (messRet == SMDIM_WAIT)
+	{
+	  ur = FALSE;
+	  while (ur==FALSE)
+		{
+#ifdef _linux_
+		  __sleep(100);
+
+#endif
+#ifdef _win32_
+		  __sleep(500);
+#endif
+		  ur = ASPI_TestUnitReady ( TransmissionInfo.HA_ID, 
+									TransmissionInfo.SCSI_ID );
+		}
+	  messRet = SMDI_GetMessage ( TransmissionInfo.HA_ID, 
+								  TransmissionInfo.SCSI_ID );
+	}
+
+#if 0
+  if (messRet==SMDIM_MESSAGEREJECT)
+    return (SMDI_GetLastError());
 
   if (messRet==SMDIM_WAIT)
     {
       ur = FALSE;
-      while (ur==FALSE) { 
-	__sleep(100); ur=ASPI_TestUnitReady( TransmissionInfo.HA_ID,
-                                           TransmissionInfo.SCSI_ID) ;
-      }
+	  timeout=0;
+      while (ur==FALSE && timeout<2000) 
+		{ 
+		  printf("Got a \"wait\" from the sampler. Waiting 100 ms.\n");
+		  fflush(stdout);
+		  __sleep(100000); 
+		  timeout+=100;
+		  /*
+		  ur=ASPI_TestUnitReady( TransmissionInfo.HA_ID,
+								 TransmissionInfo.SCSI_ID) ;
+		  */
+		  ASPI_Receive(TransmissionInfo.HA_ID,
+					   TransmissionInfo.SCSI_ID,
+					   smdicmd, 256);
+		  if (messRet!=SMDIM_SENDNEXTPACKET)
+			{
+			  printf("Waited and got %x. What a shame.\n", messRet);
+			}
+		}
     }
-  TransmissionInfo.dwTransmittedPackets++;
+#endif
 
+
+  TransmissionInfo.dwTransmittedPackets++;
   memcpy ( lpTransmissionInfo, 
 	   &TransmissionInfo, 
 	   GetStructSize ( &TransmissionInfo ) );
@@ -811,6 +855,8 @@ SMDI_GetFileSampleHeader ( char cFileName[MAXFNLEN],
 	  if ( shMyTemp.dwLoopEnd == 0 )
 	    shMyTemp.dwLoopEnd = shMyTemp.dwLength - 1;
 	  memcpy ( lpSampleHeader, &shMyTemp, GetStructSize ( &shMyTemp ) );
+
+	  printf("Sample size: %d\n", dwSize);
 	  return ( FT_WAV );
 	}
       /* <-- here comes the next format */
@@ -847,7 +893,13 @@ SMDI_FileSampleTransmission (
 
   fread ( tiTemp.lpSampleData, 1, tiTemp.dwPacketSize, ftiTemp.hFile );
   dwTemp = SMDI_SampleTransmission ( &tiTemp );
-  if ( dwTemp != SMDIM_SENDNEXTPACKET )
+  if (dwTemp == SMDIM_ENDOFPROCEDURE)
+	{
+      free ( tiTemp.lpSampleData );
+      fclose ( ftiTemp.hFile );
+	  return dwTemp;
+	}
+  else if ( dwTemp != SMDIM_SENDNEXTPACKET )
     {
       free ( tiTemp.lpSampleData );
       fclose ( ftiTemp.hFile );
@@ -878,6 +930,8 @@ SMDI_InitFileSampleTransmission (
 	   GetStructSize ( ftiTemp.lpTransmissionInfo ) );
   dwTemp = SMDI_GetFileSampleHeader ( ftiTemp.cFileName, 
 				      tiTemp.lpSampleHeader );
+
+  
   memcpy ( &shTemp, 
 	   tiTemp.lpSampleHeader, 
 	   GetStructSize ( tiTemp.lpSampleHeader ) );
@@ -1176,15 +1230,14 @@ unsigned long SMDI_SendFileMain ( LPVOID lpStart  )
     {
       dwTemp = SMDIM_SENDNEXTPACKET;
       while ( dwTemp == SMDIM_SENDNEXTPACKET)
-	{
-	  dwTemp = SMDI_FileSampleTransmission ( &ftiTemp );
-	  if (ftiTemp.lpCallBackProcedure != NULL)
-	    (*ftiTemp.lpCallBackProcedure) ( &ftiTemp, ftiTemp.dwUserData );
-	}
+		{
+		  dwTemp = SMDI_FileSampleTransmission ( &ftiTemp );
+		  if (ftiTemp.lpCallBackProcedure != NULL)
+			(*ftiTemp.lpCallBackProcedure) ( &ftiTemp, ftiTemp.dwUserData );
+		}
     }
   if ( ftiTemp.lpReturnValue != NULL )
     *(ftiTemp.lpReturnValue) = dwTemp;
-
   return ( dwTemp );
 }
 
@@ -1198,7 +1251,6 @@ SMDI_SendFile ( SMDI_FileTransfer * lpFileTransfer )
   void * lpTemp;
   SMDI_FileTransfer FileTransfer;
   unsigned long dwThreadID;
-
 
   /* Getting mem for the structures */
   ftiTemp = malloc ( sizeof(*ftiTemp) + sizeof(*tiTemp) + sizeof(*shTemp) );
@@ -1242,7 +1294,10 @@ SMDI_SendFile ( SMDI_FileTransfer * lpFileTransfer )
   (*ftiTemp).lpTransmissionInfo = tiTemp;
   (*tiTemp).lpSampleHeader = shTemp;
 
-  if (FileTransfer.lpReturnValue != NULL) *(FileTransfer.lpReturnValue) = -1;
+  if (FileTransfer.lpReturnValue != NULL) 
+	*(FileTransfer.lpReturnValue) = -1;
+
+  fflush(stdout);
 
 #ifdef _win32_
   if (FileTransfer.bAsync==TRUE)
@@ -1258,6 +1313,7 @@ SMDI_SendFile ( SMDI_FileTransfer * lpFileTransfer )
       return ( SMDI_SendFileMain ( lpTemp ) );
 #endif
 #ifdef _linux_
+  fflush(stdout);
   if (FileTransfer.bAsync==TRUE)
     {
       pthread_create ( &dwThreadID, 

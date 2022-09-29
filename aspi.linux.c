@@ -69,7 +69,7 @@ BOOL ASPI_RescanPort ( void )
 
 void ASPI_GetDevNameByID ( char cResult[], unsigned char ha_id, unsigned char id )
 {
-  sprintf ( cResult, "/dev/sg%c", id+'a' );
+  sprintf ( cResult, "/dev/sg%c", id+'0' );
 }
 
 void ASPI_Receive ( unsigned char ha_id, unsigned char id, void * buffer, unsigned long size )
