@@ -1,0 +1,46 @@
+# Makefile of SMDI.DLL for Borland C++
+
+BCCBASEDIR=c:\programme\bcc
+WNASPI32DLL=wnaspi32.dll
+
+OBJS=c0d32.obj
+LIBS=wnaspi32.bcc.lib import32.lib cw32mt.lib
+BINDIR=bin\win32\bcc
+SMDI_DLL=$(BINDIR)\smdi.dll
+SMDI_OBJ=$(BINDIR)\smdi.obj
+ASPI_WIN32_OBJ=$(BINDIR)\aspi.win32.obj
+
+SMDI_SRC=aspi.win32.c wnaspi32.c smdi.c
+
+# The compiler
+INCDIR=$(BCCBASEDIR)\include
+CC=$(BCCBASEDIR)\bin\bcc32.exe
+CFLAGS=-I$(INCDIR)  -c  -ps -q -w-8064 -w-8057 -w-8004 -a- -Od
+
+# The linker
+LNK=$(BCCBASEDIR)\bin\ilink32.exe
+LFLAGS=-Tpd -L$(BCCBASEDIR)\lib -j$(BCCBASEDIR)\lib -c -q -aa
+
+
+# --
+
+$(SMDI_DLL): wnaspi32.bcc.lib $(SMDI_OBJ) $(ASPI_WIN32_OBJ)
+	$(LNK) $(LFLAGS) $(OBJS) $(SMDI_OBJ) $(ASPI_WIN32_OBJ),$(SMDI_DLL),,$(LIBS),,
+
+$(SMDI_OBJ): smdi.c
+	$(CC) $(CFLAGS) -o$(SMDI_OBJ) smdi.c
+
+$(ASPI_WIN32_OBJ): aspi.win32.c
+	$(CC) $(CFLAGS) -o$(ASPI_WIN32_OBJ) aspi.win32.c
+
+clean:
+	del $(SMDI_DLL)
+	del $(ASPI_WIN32_OBJ)
+	del $(SMDI_OBJ)
+	del $(BINDIR)\smdi.ilc
+	del $(BINDIR)\smdi.ild
+	del $(BINDIR)\smdi.ilf
+	del $(BINDIR)\smdi.ils
+	del $(BINDIR)\smdi.tds
+	del $(BINDIR)\smdi.map
+

@@ -1,0 +1,1383 @@
+<!doctype html public "-//W3C//DTD HTML 3.2 Final//EN">
+
+<html>
+<head>
+<title>The OpenSMDI Library Manual</title>
+<meta name="resource-type" content="document">
+<meta name="author" content="Christian Nowak">
+</head>
+
+<body bgcolor=white text=black link=blue alink=blue vlink=blue>
+<b><h2>The OpenSMDI Library Manual</h2></b>
+<i>
+Christian Nowak, <a href="mailto:chnowak@web.de">chnowak@web.de</a><br>
+v0.05b, 06 September 2000<br>
+</i>
+<br>
+
+This document describes how to use the SMDI library in your own programs in
+order to transfer digital sound samples from and to a sampler via SMDI
+through an SCSI connection. It contains all neccessary commands to
+receive, send, delete and rename samples, whereby it doesn't matter which
+language you use or what file formats you are dealing with.<br>
+<br>
+<hr>
+
+<center>
+<table width="100%" align="center" cellpadding="8" cellspacing="2" border="1" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+
+<a name="Contents"></a><h2>Table Of Contents</h2>
+<ul>
+<li>1. <a href="#Introduction">Introduction</a>
+<ul><li>	1.1. <a href="#RevisionHistory">Revision History</a></ul>
+<ul><li>	1.2. <a href="#NewVersions">New Versions Of This Document</a></ul>
+<ul><li>	1.3. <a href="#Feedback">Feedback</a></ul>
+<ul><li>	1.4. <a href="#DistributionPolicy">Distribution Policy</a></ul>
+<li>2. <a href="#SCSIStandard">The SCSI Standard</a>
+<li>3. <a href="#SMDIProtocol">The SMDI Protocol</a>
+<li>4. <a href="#Usage">Usage Of The SMDI Library</a>
+<ul><li>	4.1. <a href="#StructureDefinitions">Structure Definitions</a></ul>
+<ul><ul><li>		4.1.1. <a href="#SCSI_DevInfo">SCSI_DevInfo</a></ul></ul>
+<ul><ul><li>		4.1.2. <a href="#SMDI_SampleHeader">SMDI_SampleHeader</a></ul></ul>
+<ul><ul><li>		4.1.3. <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a></ul></ul>
+<ul><ul><li>		4.1.4. <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a></ul></ul>
+<ul><ul><li>		4.1.5. <a href="#SMDI_FileTransfer">SMDI_FileTransfer</a></ul></ul>
+<ul><li>	4.2. <a href="#Constants">Constants</a></ul>
+<ul><ul><li>		4.2.1. <a href="#SMDIMessages">SMDI Messages</a></ul></ul>
+<ul><ul><li>		4.2.2. <a href="#SMDIErrors">SMDI Errors</a></ul></ul>
+<ul><ul><li>		4.2.3. <a href="#Copymodes">Copy Modes</a></ul></ul>
+<ul><ul><li>		4.2.4. <a href="#FileType">File Types</a></ul></ul>
+<ul><ul><li>		4.2.5. <a href="#FileError">File Errors</a></ul></ul>
+<ul><li>	4.3. <a href="#CommandReference">Command Reference</a></ul>
+<ul><ul><li>		4.3.1. <a href="#SMDI_GetVersion">SMDI_GetVersion</a></ul></ul>
+<ul><ul><li>		4.3.2. <a href="#SMDI_Init">SMDI_Init</a></ul></ul>
+<ul><ul><li>		4.3.3. <a href="#SMDI_GetDeviceInfo">SMDI_GetDeviceInfo</a></ul></ul>
+<ul><ul><li>		4.3.4. <a href="#SMDI_SendFile">SMDI_SendFile</a></ul></ul>
+<ul><ul><li>		4.3.5. <a href="#SMDI_ReceiveFile">SMDI_ReceiveFile</a></ul></ul>
+<ul><ul><li>		4.3.6. <a href="#SMDI_InitFileSampleTransmission">SMDI_InitFileSampleTransmission</a></ul></ul>
+<ul><ul><li>		4.3.7. <a href="#SMDI_FileSampleTransmission">SMDI_FileSampleTransmission</a></ul></ul>
+<ul><ul><li>		4.3.8. <a href="#SMDI_InitFileSampleReception">SMDI_InitFileSampleReception</a></ul></ul>
+<ul><ul><li>		4.3.9. <a href="#SMDI_FileSampleReception">SMDI_FileSampleReception</a></ul></ul>
+<ul><ul><li>		4.3.10. <a href="#SMDI_InitSampleTransmission">SMDI_InitSampleTransmission</a></ul></ul>
+<ul><ul><li>		4.3.11. <a href="#SMDI_SampleTransmission">SMDI_SampleTransmission</a></ul></ul>
+<ul><ul><li>		4.3.12. <a href="#SMDI_InitSampleReception">SMDI_InitSampleReception</a></ul></ul>
+<ul><ul><li>		4.3.13. <a href="#SMDI_SampleReception">SMDI_SampleReception</a></ul></ul>
+<ul><ul><li>		4.3.14. <a href="#SMDI_SampleHeaderRequest">SMDI_SampleHeaderRequest</a></ul></ul>
+<ul><ul><li>		4.3.15. <a href="#SMDI_GetFileSampleHeader">SMDI_GetFileSampleHeader</a></ul></ul>
+<ul><ul><li>		4.3.16. <a href="#SMDI_DeleteSample">SMDI_DeleteSample</a></ul></ul>
+</ul>
+
+  </td>
+</tr>
+</table>
+</center>
+
+<hr>
+
+<a name="Introduction"></a><h3>1. <a href="#Introduction">Introduction</a></h3>
+
+This is the SMDI library manual. It is intended as a quick overview over the
+concepts of SMDI and SCSI. Moreover, it is a description of all
+functions and structures which are used in the library.<br>
+<br>
+
+<a name="RevisionHistory"></a><h3>1.1. <a href="#RevisionHistory">Revision History</a></h3>
+
+<dl>
+<dt>Version 0.01a
+<dd>First version with documentation in Microsoft Word format
+</dl>
+
+<dl>
+<dt>Version 0.02a
+<dd>Re-written documentation in the platform-independent HTML format. Some structures have changed and new functions were added.
+</dl>
+
+<dl>
+<dt>Version 0.03b
+<dd>The library has been ported to Linux.
+</dl>
+
+<dl>
+<dt>Version 0.04b
+<dd>Threading under Linux
+<dd>Support for more than one host adapter
+<dd>Minor cleanup in the source
+</dl>
+
+<dl>
+<dt>Version 0.05b
+<dd>Compiler support for MS VC++ and the free Borland C++ compiler
+<dd>The SMDI_SendFile and SMDI_ReceiveFile functions now accept an argument dwUserData which is passed to the callback function
+<dd>These functions have now reached their final definitions by accepting their arguments in a structure
+</dl>
+
+<a name="NewVersions"></a><h3>1.2. <a href="#NewVersions">New Versions Of This Document</a></h3>
+
+New versions of this document will be uploaded to the main site of the
+whole library which is at <a href="http://www.teklab.com/openSMDI/">
+http://www.teklab.com/openSMDI/</a>. They will also be
+uploaded to various anonymous ftp sites that archive such libraries
+including <a href="ftp://ftp.simtel.net">ftp://ftp.simtel.net</a>.<br>
+<br>
+
+<a name="Feedback"></a><h3>1.3. <a href="#Feedback">Feedback</a></h3>
+
+I rely on you, the users, to make this document and the entire library
+useful. If you have any suggestions, corrections, or comments, please
+send them to me, <a href="mailto:chnowak@web.de">chnowak@web.de</a>, and I
+will try to incorporate them in the next revision.<br>
+<br>
+I am also willing to answer general questions on SMDI, SCSI and using
+the library, as best as I can. Before doing so, please read all of the
+information in this manual, and send me detailed information about the
+problem.<br>
+<br>
+If you publish this document or the entire library on a CD-ROM or in
+hardcopy form, a complimentary copy would be appreciated.<br>
+<br>
+
+<a name="DistributionPolicy"></a><h3>1.4. <a href="#DistributionPolicy">Distribution Policy</a></h3>
+
+Copyright (C) 1999, 2000 Christian Nowak.<br>
+<br>
+This document is free documentation; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.<br>
+<br>
+This document is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose.  See the GNU
+General Public License for more details.
+You can obtain a copy of the GNU General Public License by writing to
+the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+USA.<br>
+<br>
+
+<a name="SCSIStandard"></a><h3>2. <a href="#SCSIStandard">The SCSI Standard</a></h3>
+
+<cite>
+"SCSI is a local I/O bus that can be operated over a wide range of data 
+rates.  The primary objective of the interface is to provide host computers 
+with device independence within a class of devices.  Thus, different disk 
+drives, tape drives, printers, optical media drives, and other devices can be 
+added to the host computers without requiring modifications to generic system 
+hardware or software.  Provision is made for the addition of special features 
+and functions through the use of vendor unique fields and codes.  Reserved 
+fields and codes are provided for future standardization."<br>
+</cite>
+<b>(Small Computer System Interface 2 draft Revision 10b, American National Standard)</b><br>
+<br>
+You can purchase a copy of the whole draft via paper mail from:<br>
+<i>
+Global Engineering Documents<br>
+2805 McGaw, Irvine, CA 92714<br>
+</i>
+<br>
+In practice, the SCSI interface in PCs is nowadays provided by SCSI host
+adapters, such as the Adapted AVA-15xx series, which can either be a 
+slot card (PCI or ISA), or an adapter for the parallel port or the 
+PC-Card slot of today's notebooks. A normal SCSI host adapter can 
+manage up to 8 or 16 different devices in one chain, whereby the 
+first and the last device must be terminated. This basically means
+that the chain must be electrically "closed" on both ends by putting a 
+resistor at the end in order to avoid electrical interferences in the
+signals. Each device in a chain must have its own number so that it can
+be specified when it's accessed by any other device. The SCSI host
+adapter in the PC also has its own SCSI ID. As stated above, there are
+many different device classes like tape drives, printers, optical media
+drives and so on. Samplers and computers belong to the processor 
+device class. All devices in one class can always be accessed in the
+same way. All the intelligence to access data is implemented in the 
+device itself and not in the PC as drivers.<br>
+<br>
+
+<a name="SMDIProtocol"></a><h3>3. <a href="#SMDIProtocol">The SMDI Protocol</a></h3>
+
+Since samplers are naturally processor devices in SCSI's terminology,
+you can only send and receive strings of bytes to/from them. It's the
+way you format the bytes in one string what determines whether you're
+communicating with the sampler in the SMDI "language". These strings are
+called messages, and they're exchanged in an alternating way. So, the
+computer sends a message to the sampler, and the sampler answers with a
+message.<br>
+<dl>
+<dt>Each message is divided into 3 different parts:<br>
+<dd>	1. The SMDI message tag, a fixed four-byte string "SMDI", which serves as an identifying tag for all SMDI messages.
+<dd>	2. The message code, which identifies the type of the message and consists of a two-byte Message ID code, followed by a two-byte Message Sub-ID code.
+<dd>	3. The Additional Message Length, a three-byte field which indicates the number of bytes following the header in the current message.
+</dl>
+<br>
+
+<a name="Usage"></a><h3>4. <a href="#Usage">Usage Of The SMDI Library</a></h3>
+
+<h4>Under Win32 Based Systems</h4>
+It is recommended to dynamically link with the smdi.dll under windows.
+You do this by calling the API's LoadLibrary function to open the library 
+and then calling the GetProcAddress function to get the start address 
+of a desired OpenSMDI function. Here's a small C snippet which does this:<br>
+<br>
+<center>
+<table align="center" width="95%" cellpadding="8" cellspacing="2" border="0">
+<tr>
+<td align="left" valign="top" bgcolor="#eeeeee">
+<code>
+<dl>
+<dd></dd>
+<dd>#include "smdidynamic.h"</dd>
+<dd></dd><br>
+<dd>/* Open the library */</dd>
+<dd>HINSTANCE hSmdiDll = LoadLibrary ( "smdi.dll" );</dd>
+<dd>if (hSmdiDll == NULL)</dd>
+<dd>{</dd>
+<dd></dd><dl>
+<dd><dd>	printf ("Couldn't open smdi.dll !\nError code: %d\n",GetLastError());</dd></dd>
+<dd><dd>	return(1);</dd></dd>
+<dd></dd></dl>
+<dd>}</dd><br>
+<dd></dd><br>
+<dd>/* Getting the function addresses */</dd>
+<dd>SMDI_Init = GetProcAddress ( hSmdiDll, "SMDI_Init" );</dd>
+<dd>if (SMDI_Init == NULL) SMDI_Init = GetProcAddress ( hSmdiDll, "_SMDI_Init" );</dd>
+<dd></dd><br>
+<dd>SMDI_MasterIdentify = GetProcAddress ( hSmdiDll, "SMDI_MasterIdentify" );</dd>
+<dd>if (SMDI_MasterIdentify == NULL) SMDI_MasterIdentify = GetProcAddress ( hSmdiDll, "_SMDI_MasterIdentify" );</dd>
+<dd></dd><br>
+<dd>/* Calling the functions */</dd>
+<dd>if (SMDI_Init() &gt; 0)</dd>
+<dd></dd><dl>
+<dd><dd>printf("ha 0, id 0 SMDI Master Identify response: 0x%x\n", SMDI_MasterIdentify ( 0, 0 ));</dd></dd>
+<dd></dd><br>
+<dd></dd></dl>
+<dd>/* Closing the library */</dd>
+<dd>FreeLibrary ( &hSmdiDll );</dd>
+</dl>
+</code>
+</td>
+</tr>
+</table>
+</center>
+<br>
+Since some compilers export function names with a preceding underscore 
+(_) into the dll and others don't, it is strongly recommended to support 
+at least these both versions of the function names. Be as liberal with 
+what function names you're importing as possible !<br>
+If you're going to link with smdi.dll statically, #include the smdistatic.h 
+file, when linking dynamically, use smdidynamic.h, and if you just need 
+the constant and struct definitions, use smdi.h.<br>
+<br>
+
+<h4>Under Linux</h4>
+If you're using c (GCC, for example), just link the library with your 
+executable and include the file <i>SMDI.H</i> into your source.<br>
+Compiling is done like this:
+<dl><dd>gcc test.c smdi.so.1 -o test</dl>
+Please note that the SCSI-ID parameter which is used by some structures 
+and many functions is actually an index to the generic device driver 
+("/dev/sg[a-n]") under Linux. Therefore, an SCSI-ID of 0 means /dev/sga 
+and 5 means /dev/sgf. This only applies to Linux, where these device files 
+are dynamically mapped to the SCSI id's. Therefore, assuming you had 
+hooked up three SCSI devices with id's 1, 3 and 5, then the following 
+mapping would be in effect:<br>
+/dev/sga -> id 1 (SCSI-ID param = 0)<br>
+/dev/sgb -> id 3 (SCSI-ID param = 1)<br>
+/dev/sgc -> id 5 (SCSI-ID param = 2)<br>
+<br>
+
+<a name="StructureDefinitions"></a><h3>4.1. <a href="#StructureDefinitions">Structure Definitions</a></h3>
+
+By now, there are five different structures in the SMDI library. I'll use the
+original C declarations here. Structure members with the name
+<i>Rsvd</i> are reserved for DWORD aligning and will possibly be used in
+future versions of the library. Every structure has a member 
+<i>dwStructSize</i>. Before you use any structure, you'll have to enter
+here the size of the entire structure in bytes, including dwStructSize 
+itself.<br>
+<br>
+In C, you do this with:<br>
+<code>whateverstructure.dwStructSize = sizeof(whateverstructure);</code><br>
+<br>
+In Delphi, you do this with:<br>
+<code>whateverstructure.dwStructSize := SizeOf(whateverstructure);</code><br>
+<br>
+
+
+
+
+<a name="SCSI_DevInfo"></a><h3>4.1.1. <a href="#SCSI_DevInfo">SCSI_DevInfo</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl>
+    <dd>The <b>SCSI_DevInfo</b> structure contains information which the 
+    <a href="#SMDI_GetDeviceInfo">SMDI_GetDeviceInfo</a> function returns
+    information about an SCSI device, if it is SMDI compatible.<br><br>
+    </dl>
+
+    <h3>Definition</h3>
+    <code>
+    <dl><dl>
+    <dt>typedef struct SCSI_DevInfo
+    <dt>{
+    <dd>	DWORD dwStructSize;
+    <dd>	BOOL bSMDI;
+    <dd>	BYTE DevType;
+    <dd>	BYTE Rsvd1;
+    <dd>	BYTE Rsvd2;
+    <dd>	BYTE Rsvd3;
+    <dd>	char cName[20];
+    <dd>	char cManufacturer[12];
+    <dt>} SCSI_DevInfo;
+    </dl></dl>
+    </code>
+
+    <dl>
+    <dt><h3>Members</h3>
+    <dl>
+    <dt><b>bSMDI</b>
+    <dd>		TRUE if the device is SMDI compatible.
+    <dt><b>DevType</b>
+    <dd>		The type of the SCSI device. If bSMDI is true, this one should always be 3 (=processor device).
+    <dt><b>cName</b>
+    <dd>		The device's name.
+    <dt><b>cManufacturer</b>
+    <dd>		The device's manufacturer.
+    </dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+<br>
+<p>
+
+
+
+<a name="SMDI_SampleHeader"></a><h3>4.1.2. <a href="#SMDI_SampleHeader">SMDI_SampleHeader</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl>
+    <dd>This structure contains information about a sample returned by 
+    <a href="#SMDI_SampleHeaderRequest">SMDI_SampleHeaderRequest</a> and <a
+    href="#SMDI_GetFileSampleHeader">SMDI_GetFileSampleHeader</a>.
+    </dl>
+
+    <h3>Definition</h3>
+    <code>
+    <dl><dl>
+    <dt>typedef struct SMDI_SampleHeader
+    <dt>{
+    <dd>	DWORD dwStructSize;
+    <dd>	BOOL bDoesExist;
+    <dd>	BYTE BitsPerWord;
+    <dd>	BYTE NumberOfChannels;
+    <dd>	BYTE LoopControl;
+    <dd>	BYTE NameLength;
+    <dd>	DWORD dwPeriod;
+    <dd>	DWORD dwLength;
+    <dd>	DWORD dwLoopStart;
+    <dd>	DWORD dwLoopEnd;
+    <dd>	WORD wPitch;
+    <dd>	WORD wPitchFraction;
+    <dd>	char cName[256];
+    <dd>	DWORD dwDataOffset;
+    <dt>} SMDI_SampleHeader;
+    </dl></dl>
+    </code>
+    <dl>
+
+    <dt><h3>Members</h3>
+    <dl>
+    <dt><b>bDoesExist</b>
+    <dd>		After a call of <a href="#SMDI_SampleHeaderRequest">SMDI_SampleHeaderRequest</a> or <a href="#SMDI_GetFileSampleHeader">SMDI_GetFileSampleHeader</a>, this one specifies whether the sample does exist at the given location or not.
+    <dt><b>BitsPerWord</b>
+    <dd>		Bits used for a single sample. Usually 8 or 16.
+    <dt><b>NumberOfChannels</b>
+    <dd>		The number of channels the sample uses. 2 is stereo and 1 is mono.
+    <dt><b>LoopControl</b>
+    <dd>		Specifies if and how the defined loop between dwLoopStart and dwLoopEnd should be played.
+    <dt><b>NameLength</b>
+    <dd>		Length of the sample's name, in bytes.
+    <dt><b>dwPeriod</b>
+    <dd>		The length of a period of one single sample frame in nanoseconds.  The frequency is f = 10^9 / dwPeriod
+    <dt><b>dwLength</b>
+    <dd>		Length of the sample, measured in sample frames. One sample frame's length is (NumberOfChannels*BitsPerWord)/8 bytes.
+    <dt><b>dwLoopStart</b>
+    <dd>		The sample frame's number where the loop starts.
+    <dt><b>dwLoopEnd</b>
+    <dd>		The sample frame's number where the loop stops.
+    <dt><b>wPitch</b>
+    <dd>		Indicates the absolute musical pitch of the sound represented by the sample when played at the specified sample rate. This integer specifies a specific semitone (60 is middle C).
+    <dt><b>wPitchFraction</b>
+    <dd>		Specifies the fine tuning of the sound, measured in cents upward from the semitone. 60.00 is exactly middle C, 60.32768 is 50 cents above middle C. In the case that the two pitch values are unavailable, a default of 60.00 should be used.
+    <dt><b>cName</b>
+    <dd>		Name of the sound.
+    <dt><b>dwDataOffset</b>
+    <dd>		After a call of <a href="#SMDI_GetFileSampleHeader">SMDI_GetFileSampleHeader</a>, this value determines the offset from the beginning of the given file, where the sample data begins.
+    </dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+<br>
+<p>
+
+
+
+<a name="SMDI_TransmissionInfo"></a><h3>4.1.3. <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>This structure contains information about a current tranfer from/to a
+            sampler.
+    </dl>
+
+    <h3>Definition</h3>
+    <code>
+    <dl><dl>
+    <dt>typedef struct SMDI_TransmissionInfo
+    <dt>{
+    <dd>	DWORD dwStructSize;
+    <dd>	SMDI_SampleHeader * lpSampleHeader;
+    <dd>	DWORD dwTransmittedPackets;
+    <dd>	DWORD dwPacketSize;
+    <dd>	DWORD dwSampleNumber;
+    <dd>	DWORD dwCopyMode;
+    <dd>	void * lpSampleData;
+    <dd>	BYTE SCSI_ID;
+    <dd>	BYTE HA_ID;
+    <dd>	BYTE Rsvd1;
+    <dd>	BYTE Rsvd2;
+    <dt>} SMDI_TransmissionInfo;
+    </dl></dl>
+    </code>
+
+    <dl>
+    <dt><h3>Members</h3>
+    <dl>
+    <dt><b>lpSampleHeader</b>
+    <dd>		Pointer to a <a href="#SMDI_SampleHeader">SMDI_SampleHeader</a> structure which contains information about the sample which is currently being transmitted.
+    <dt><b>dwTransmittedPackets</b>
+    <dd>		The number of packets which have already been transmitted.
+    <dt><b>dwPacketSize</b>
+    <dd>		Size of each packet, measured in bytes. This value must be aligned so that no sample frames are getting fragmented, for example a multiple of 4 for 16 bit stereo samples and a mutliple of 2 for 8 bit stereo samples.
+    <dt><b>dwSampleNumber</b>
+    <dd>		The memory location within the sampler where a sample is currently sent to or received to.
+    <dt><b>dwCopyMode</b>
+    <dd>		In SMDI transfers, word and doubleword values are stored in the Motorola (MSB, .., LSB) format and not in the Intel (LSB, .., MSB) format, making it neccessary to swap the bytes of each sample frame in order to make the data readable for Intel processors. This value specifies if and how the data which is received or sent is byte swapped. You can choose any of the 3 available <a href="#Copymodes">Copymodes</a> constants.
+    <dt><b>lpSampleData</b>
+    <dd>		Pointer to a piece of memory which contains the next data packet to be sent or which will receive the next data packet. The size of this piece of memory must be at least dwPacketSize.
+    <dt><b>SCSI_ID</b>
+    <dd>		The SCSI number of the currently accessed device.
+    <dt><b>HA_ID</b>
+    <dd>		The host adapter number to which the device is attached.
+    </dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_FileTransmissionInfo"></a><h3>4.1.4. <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>This structure contains information about the sample file which is
+            currently being sent or received.
+    </dl>
+
+    <h3>Definition</h3>
+    <code>
+    <dl><dl>
+    <dt>typedef struct SMDI_FileTransmissionInfo
+    <dt>{
+    <dd>	DWORD dwStructSize;
+    <dd>	FARPROC lpCallBackProcedure;
+    <dd>	SMDI_TransmissionInfo * lpTransmissionInfo;
+    <dd>	DWORD dwFileType;
+    <dd>	HANDLE hFile;
+    <dd>	char cFileName[MAX_PATH];
+    <dt>} SMDI_FileTransmissionInfo;
+    </dl></dl>
+    </code>
+
+    <dl>
+    <dt><h3>Members</h3>
+    <dl>
+    <dt><b>lpCallbackProcedure</b>
+    <dd>		In transfers using <a href="#SMDI_SendFile">SMDI_SendFile</a> or <a href="#SMDI_ReceiveFile">SMDI_ReceiveFile</a>, this member contains a pointer to a procedure which is called after each transmission of a packet. If it is NULL, no procedure is being called.
+    <dt><b>lpTransmissionInfo</b>
+    <dd>		A pointer to a <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure.
+    <dt><b>dwFileType</b>
+    <dd>		The sample file type which is currently being read from or written to. You can choose any of the available <a href="#FileType">file type</a> constants.
+    <dt><b>hFile</b>
+    <dd>		Handle of the currently opened file.
+    <dt><b>cFileName</b>
+    <dd>		Name of the currently opened file.
+    </dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_FileTransfer"></a><h3>4.1.5. <a href="#SMDI_FileTransfer">SMDI_FileTransfer</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl>
+    <dd>This structure is used by the functions <a href="#SMDI_SendFile">SMDI_SendFile</a> and 
+        <a href="#SMDI_ReceiveFile">SMDI_ReceiveFile</a> for accepting their arguments.
+    </dl>
+
+    <h3>Definition</h3>
+    <code>
+    <dl><dl>
+    <dt>typedef struct SMDI_FileTransfer
+    <dt>{
+    <dd>	DWORD dwStructSize;
+    <dd>	BYTE HA_ID;
+    <dd>	BYTE rsvd1;
+    <dd>	BYTE rsvd2;
+    <dd>	BYTE rsvd3;
+    <dd>	BYTE SCSI_ID;
+    <dd>	BYTE rsvd4;
+    <dd>	BYTE rsvd5;
+    <dd>	BYTE rsvd6;
+    <dd>	DWORD dwSampleNumber;
+    <dd>	char * lpFileName;
+    <dd>	DWORD dwFileType;
+    <dd>	char * lpSampleName;
+    <dd>	void (*lpCallback)();
+    <dd>	DWORD dwUserData;
+    <dd>	BOOL bAsync;
+    <dd>	DWORD * lpReturnValue;
+    <dt>} SMDI_FileTransfer;
+    </dl></dl>
+    </code>
+
+    <dl>
+    <dt><h3>Members</h3>
+    <dl>
+    <dt><b>HA_ID</b>
+    <dd>	The host adapter number to which the device is attached.
+    <dt><b>SCSI_ID</b>
+    <dd>	The device's SCSI ID.
+    <dt><b>dwSampleNumber</b>
+    <dd>	The memory location in the sampler where the sample shall be sent to or received from.
+    <dt><b>lpFileName</b>
+    <dd>	Specifies the file on the local computer which shall be sent or stored.
+    <dt><b>dwFileType</b>
+    <dd>	Determines the format of the file which is stored. Can be any of the <a href="#FileType">file type</a> constants. Only needed when receiving a sample.
+    <dt><b>lpSampleName</b>
+    <dd>	The name of the sample. Only needed when sending a sample.
+    <dt><b>lpCallback</b>
+    <dd>	Enter a pointer to a function here. It is called each time a data packet has been sent or received from/to the sampler. If you don't want a function to be called, you can enter NULL. As the first parameter, a pointer to a SMDI_FileTransmissionInfo structure will be passed to the Callback function.
+    <dt><b>dwUserData</b>
+    <dd>	This value will be passed as the second argument to the callback function. It can be anything.
+    <dt><b>bAsync</b>
+    <dd>	If this one is TRUE, the main procedure which sends or receives the sample is threaded. This means that <b>SMDI_SendFile</b> or <b>SMDI_ReceiveFile</b> will return immediately and the process of sending or receiving the sample is executed in the background.
+    <dt><b>lpReturnValue</b>
+    <dd>	If bAsync is TRUE and lpReturnValue not NULL, the DWORD to which lpReturnValue points will be -1 and after the transmission is finished, it will contain the return value.
+    </dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="Constants"></a><h3>4.2. <a href="#Constants">Constants</a></h3>
+This section describes all constants used in the library.<br>
+<br>
+
+
+<a name="SMDIMessages"></a><h3>4.2.1. <a href="#SMDI-Messages">SMDI Messages</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <dl>
+    <dd><a name="SMDIM_MESSAGEREJECT"></a><h4>SMDIM_MESSAGEREJECT</h4>
+    <dl><dd>Sent by the sampler when an error occured. The bytes 11-14 of the reject message contains extended <a href="#SMDIErrors">error information</a>.</dl>
+    <dd><a name="SMDIM_SENDNEXTPACKET"></a><h4>SMDIM_SENDNEXTPACKET</h4>
+    <dl><dd>Sent by the sampler when it's awaiting the next data packet in a sample transmission.</dl>
+    <dd><a name="SMDIM_ENDOFPROCEDURE"></a><h4>SMDIM_ENDOFPROCEDURE</h4>
+    <dl><dd>Sent by the sampler when a procedure has successfully been finished.</dl>
+    <dd><a name="SMDIM_ABORTPROCEDURE"></a><h4>SMDIM_ABORTPROCEDURE</h4>
+    <dl><dd>Can be sent by either the computer or the sampler to abort a procedure.</dl>
+    <dd><a name="SMDIM_DATAPACKET"></a><h4>SMDIM_DATAPACKET</h4>
+    <dl><dd>A data packet message. Contains a data packet.</dl>
+    <dd><a name="SMDIM_SAMPLEHEADERREQUEST"></a><h4>SMDIM_SAMPLEHEADERREQUEST</h4>
+    <dl><dd>Sent by the computer to request a sample header. The expected reply is <a href="#SMDIM_SAMPLEHEADER">SMDIM_SAMPLEHEADER</a>.</dl>
+    <dd><a name="SMDIM_SAMPLEHEADER"></a><h4>SMDIM_SAMPLEHEADER</h4>
+    <dl><dd>Identifies a sample header message, which contains information about a sample.</dl>
+    <dd><a name="SMDIM_SAMPLENAME"></a><h4>SMDIM_SAMPLENAME</h4>
+    <dl><dd>The sample name message, sent to the sampler in order to rename a sample.</dl>
+    <dd><a name="SMDIM_DELETESAMPLE"></a><h4>SMDIM_DELETESAMPLE</h4>
+    <dl><dd>The delete sample message, sent to the sampler in order to delete a sample.</dl>
+    <dd><a name="SMDIM_BEGINSAMPLETRANSFER"></a><h4>SMDIM_BEGINSAMPLETRANSFER</h4>
+    <dl><dd>Sent to the sampler in order to begin a sample transfer in either direction. The expected reply is <a href="#SMDIM_TRANSFERACKNOWLEDGE">SMDIM_TRANSFERACKNOWLEDGE</a>.</dl>
+    <dd><a name="SMDIM_TRANSFERACKNOWLEDGE"></a><h4>SMDIM_TRANSFERACKNOWLEDGE</h4>
+    <dl><dd>Used to acknowledge a sample transfer in either direction.</dl>
+    <dd><a name="SMDIM_TRANSMITMIDIMESSAGE"></a><h4>SMDIM_TRANSMITMIDIMESSAGE</h4>
+    <dl><dd>Can be used to transmit MIDI strings to the sampler.</dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+<a name="SMDIErrors"></a><h3>4.2.2. <a href="#SMDI-Errors">SMDI Errors</a></h3>
+SMDI error constants represent error codes transmitted within a 
+<a href="#SMDIM_MESSAGEREJECT">SMDIM_MESSAGEREJECT</a> message by 
+the sampler.<br>
+<br>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <dl>
+    <dd><a name="SMDIE_OUTOFRANGE"></a><h4>SMDIE_OUTOFRANGE</h4>
+    <dl><dd>A sample location within the sampler has been tried to accessed, which is out of the sampler's range.</dl>
+    <dd><a name="SMDIE_NOSAMPLE"></a><h4>SMDIE_NOSAMPLE</h4>
+    <dl><dd>A sample header or an entire sample has been requested from a location in the sampler where there is no sample.</dl>
+    <dd><a name="SMDIE_NOMEMORY"></a><h4>SMDIE_NOMEMORY</h4>
+    <dl><dd>It has been tried to send a sample to the sampler which is too big to fit into the sampler's memory.</dl>
+    <dd><a name="SMDIE_UNSUPPSAMBITS"></a><h4>SMDIE_UNSUPPSAMBITS</h4>
+    <dl><dd>It has been tried to send a sample to the sampler with a bit whidth which isn't supported by the sampler.</dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="Copymodes"></a><h3>4.2.3. <a href="#Copymodes">Copy Modes</a></h3>
+Copy modes specify if and how sample data should be byte swapped in 
+transfers.<br>
+<br>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <dl>
+    <dd><a name="CM_NORMAL"></a><h4>CM_NORMAL</h4>
+    <dl><dd>The data isn't swapped at all.</dl>
+    <dd><a name="CM_SWAPDWORD"></a><h4>CM_SWAPDWORD</h4>
+    <dl><dd>4 bytes are always swapped. 0x11223344 will get 0x44332211.</dl>
+    <dd><a name="CM_SWAPWORD"></a><h4>CM_SWAPWORD</h4>
+    <dl><dd>2 bytes are always swapped. 0x1122 will get 0x2211.</dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="FileType"></a><h3>4.2.4. <a href="#FileType">File Types</a></h3>
+The <b>file type</b> constants determine the file formats which the 
+library does support.<br>
+<br>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <dl>
+    <dd><a name="FT_WAV"></a><h4>FT_WAV</h4>
+    <dl><dd>The Windows RIFF WAVE format.</dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="FileError"></a><h3>4.2.5. <a href="#FileError">File Errors</a></h3>
+Error codes in functions which handle files.<br>
+<br>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <dl>
+    <dd><a name="FE_OPENERROR"></a><h4>FE_OPENERROR</h3>
+    <dl><dd>The specified file couldn't be opened. Most probably it doesn't exist.</dl>
+    <dd><a name="FE_UNKNOWNFORMAT"></a><h4>FE_UNKNOWNFORMAT</h4>
+    <dl><dd>The specified is of an unknown, unsupported format.</dl>
+    </dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="CommandReference"></a><h3>4.3. <a href="#CommandReference">Command Reference</a></h3>
+This section describes all important Functions available in the library.<br>
+<br>
+
+<a name="SMDI_GetVersion"></a><h3>4.3.1. <a href="#SMDI_GetVersion">SMDI_GetVersion</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl>
+    <dd>The <b>SMDI_GetVersion</b> function returns the version number of the
+    currently used copy of the SMDI library.
+    </dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_GetVersion ( void );</b></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The version number of the currently used copy of the SMDI library, in percent. 
+    For example, 4 is v0.04 and 123 is v1.23. Pre-releases, such as v1.23.4,
+    are returned as v1.23.</dl>
+  </td>
+</tr>
+</table>
+</center>
+
+<a name="SMDI_Init"></a><h3>4.3.2. <a href="#SMDI_Init">SMDI_Init</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl>
+    <dd>The <b>SMDI_Init</b> function resets the SCSI bus, if there is one.
+    </dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>BYTE SMDI_Init ( void );</b></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>If it succeeded, it returns the number of host adapters in the system. 
+    If it returns 0, there are no host adapters. Under Linux it always
+    returns 1.</dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_GetDeviceInfo"></a><h3>4.3.3. <a href="#SMDI_GetDeviceInfo">SMDI_GetDeviceInfo</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_GetDeviceInfo</b> function retrieves information about the
+    SCSI device with the given ID.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>void SMDI_GetDeviceInfo ( BYTE HA_ID, BYTE SCSI_ID, SCSI_DevInfo * lpDevInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>HA_ID</i>
+    <dd>	The host adapter number to which the device is attached.
+    <dt><i>SCSI_ID</i>
+    <dd>	The device's SCSI ID.
+    <dt><i>lpDevInfo</i>
+    <dd>	A pointer a <a href="#SCSI_DevInfo">SCSI_DevInfo</a> structure which will be filled with the information about the desired device. Note that, if the bSMDI member of the structure is FALSE after the call, all other members are invalid.
+    </dl></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_SendFile"></a><h3>4.3.4. <a href="#SMDI_SendFile">SMDI_SendFile</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_SendFile</b> function sends a sample from a local file to
+    a sampler. The local file can be in any format which is supported by the
+    library.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_SendFile ( SMDI_FileTransfer * lpFileTransfer);</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpFileTransfer</i>
+    <dd>	A pointer to a <a href="#SMDI_FileTransfer">SMDI_FileTransfer</a> structure which contains all necessary arguments.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>Id the <b>SMDI_SendFile</b> function has been called with bAsync being
+    TRUE, the expected return value is -1 (0xffffffff). This means that the
+    transmission is being started. If bAsync is FALSE, the expected return
+    value is one of the following:<br>
+    <dl>
+    <dd><a href="#SMDIM_ENDOFPROCEDURE">SMDIM_ENDOFPROCEDURE</a>
+    <dd><a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd><a href="#SMDIE_NOMEMORY">SMDIE_NOMEMORY</a>
+    <dd><a href="#SMDIE_UNSUPPSAMBITS">SMDIE_UNSUPPSAMBITS</a>
+    <dd><a href="#FE_OPENERROR">FE_OPENERROR</a>
+    <dd><a href="#FE_UNKNOWNFORMAT">FE_UNKNOWNFORMAT</a>
+    </dl></dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Internally, this function uses the functions <a
+    href="#SMDI_InitFileSampleTransmission">SMDI_InitFileSampleTransmission</a>
+    and <a href="#SMDI_FileSampleTransmission">SMDI_FileSampleTransmission</a>.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_ReceiveFile">SMDI_ReceiveFile</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_ReceiveFile"></a><h3>4.3.5. <a href="#SMDI_ReceiveFile">SMDI_ReceiveFile</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_ReceiveFile</b> function receives a sample from a sampler
+    and stores it into a local file. The local file can be in any format 
+    which is supported by the library.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_ReceiveFile ( SMDI_FileTransfer * lpFileTransfer );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpFileTransfer</i>
+    <dd>	A pointer to a <a href="#SMDI_FileTransfer">SMDI_FileTransfer</a> structure which contains all necessary arguments.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>If the <b>SMDI_ReceiveFile</b> function is called with bAsync being
+    TRUE, the expected return value is -1 (0xffffffff). This means that the
+    transmission ist started. If bAsync is FALSE, the return value is one of
+    the following:</dl>
+    <dl>
+    <dd><a href="#SMDIM_ENDOFPROCEDURE">SMDIM_ENDOFPROCEDURE</a>
+    <dd><a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd><a href="#SMDIE_NOSAMPLE">SMDIE_NOSAMPLE</a>
+    <dd><a href="#FE_OPENERROR">FE_OPENERROR</a>
+    <dd><a href="#FE_UNKNOWNFORMAT">FE_UNKNOWNFORMAT</a>
+    </dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Internally, this function uses the functions <a
+    href="#SMDI_InitFileSampleReception">SMDI_InitFileSampleReception</a>
+    and <a
+    href="#SMDI_FileSampleReception">SMDI_FileSampleReception</a>.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_SendFile">SMDI_SendFile</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_InitFileSampleTransmission"></a><h3>4.3.6. <a href="#SMDI_InitFileSampleTransmission">SMDI_InitFileSampleTransmission</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_InitFileSampleTransmission</b> function initiates a sample
+    transmission from the computer to the sampler by checking the format of
+    the file entered in the 
+    <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a> 
+    structure which is passed to this function and sending all neccessary 
+    information to the sampler. The return value determines whether the
+    transmission can be continued using the <a
+    href="#SMDI_FileSampleTransmission">SMDI_FileSampleTransmission</a> 
+    function or not.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_InitFileSampleTransmission ( SMDI_TransmissionInfo * lpFileTransmissionInfo);</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpFileTransmissionInfo</i>
+    <dd>	A pointer to a <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a> structure. The following members of the structure have to be filled before calling this function:
+    <dl><dd>	<code>lpTransmissionInfo</code></dl>
+    <dl><dd>	<code>cFileName</code></dl>
+    <dd>	In the <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure, whose address is enterd in <b>lpTransmissionInfo</b>, the following members must be filled before calling the function:
+    <dl><dd>	<code>lpSampleHeader</code></dl>
+    <dl><dd>	<code>dwSampleNumber</code></dl>
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is 
+    <a href="#SMDIM_SENDNEXTPACKET">SMDIM_SENDNEXTPACKET</a>. If an error
+    occured, other possible return values are:<br>
+    <dl>
+    <dd>	<a href="#FE_OPENERROR">FE_OPENERROR</a>
+    <dd>	<a href="#FE_UNKNOWNFORMAT">FE_UNKNOWNFORMAT</a>
+    <dd>	<a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd>	<a href="#SMDIE_NOMEMORY">SMDIE_NOMEMORY</a>
+    <dd>	<a href="#SMDIE_UNSUPPSAMBITS">SMDIE_UNSUPPSAMBITS</a>
+    </dl></dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Internally, this function uses the <a
+    href="#SMDI_InitSampleTransmission">SMDI_InitSampleTransmission</a>
+    function and only adds support for file formats.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_FileSampleTransmission">SMDI_FileSampleTransmission</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_FileSampleTransmission"></a><h3>4.3.7. <a href="#SMDI_FileSampleTransmission">SMDI_FileSampleTransmission</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_FileSampleTransmission</b> function must be called after a
+    successful call of the <a
+    href="#SMDI_InitFileSampleTransmission">SMDI_InitFileSampleTransmission</a>
+    function. On each call, it sends the next data packet from the file to
+    the sampler until there are no more packets to send.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_FileSampleTransmission ( SMDI_FileTransmissionInfo * lpFileTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpFileTransmissionInfo</i>
+    <dl>	A pointer to the <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a> structure which has been used in the call of <a href="#SMDI_InitFileSampleTransmission">SMDI_InitFileSampleTransmission</a>.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_SENDNEXTPACKET">SMDIM_SENDNEXTPACKET</a>. This means that
+    the sampler is awaiting the next packet and you have to call the
+    <b>SMDI_FileSampleTransmission</b> function again. If the sample
+    transfer has ended successfully, the expected return value is <a
+    href="#SMDIM_ENDOFPROCEDURE">SMDIM_ENDOFPROCEDURE</a>. In this case, you
+    <b>must not</b> call this function again.</dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Internally, this function uses the <a
+    href="#SMDI_SampleTransmission">SMDI_SampleTransmission</a> function and
+    only adds support for file formats.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_InitFileSampleTransmission">SMDI_InitFileSampleTransmission</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_InitFileSampleReception"></a><h3>4.3.8. <a href="#SMDI_InitFileSampleReception">SMDI_InitFileSampleReception</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_InitFileSampleReception</b> initiates a sample transmission
+    from the sampler to the computer by receiving the sample information
+    from the sampler and writing the header of a local file whose name and
+    format is entered in the <a
+    href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a>
+    structure. The return value determines whether the transmission can be
+    continued via the <a
+    href="#SMDI_FileSampleReception">SMDI_FileSampleReception</a> function
+    or not.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_InitFileSampleReception ( SMDI_FileTransmissionInfo * lpFileTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpFileTransmissionInfo</i>
+    <dd>	A pointer to a <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a> structure. The following members of the structure have to be filled before calling this function:
+    <dl><dd>	<code>lpTransmissionInfo</code></dl>
+    <dl><dd>	<code>dwFileType</code></dl>
+    <dl><dd>	<code>cFileName</code></dl>
+    <dd>	dwFileType can be any of the <a href="#FileType">file type</a> constants.
+    <dd>	The following members of the <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure whose address is entered into lpTransmissionInfo must be filled:
+    <dl><dd>	<code>lpSampleHeader</code></dl>
+    <dl><dd>	<code>dwSampleNumber</code></dl>
+    <dl><dd>	<code>SCSI_ID</code></dl>
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_TRANSFERACKNOWLEDGE">SMDIM_TRANSFERACKNOWLEDGE</a>. This
+    means that the sampler is ready to send the next data packet and you
+    have to call the <a
+    href="#SMDI_FileSampleReception">SMDI_FileSampleReception</a> function.
+    If an error occured, other possible return values are:</dl>
+    <dl><dl>
+    <dd>	<a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd>	<a href="#SMDIE_NOSAMPLE">SMDIE_NOSAMPLE</a>
+    <dd>	<a href="#FE_OPENERROR">FE_OPENERROR</a>
+    <dd>	<a href="#FE_UNKNOWNFORMAT">FE_UNKNOWNFORMAT</a>
+    </dl></dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Internally, this function uses the <a
+    href="#SMDI_InitSampleReception">SMDI_InitSampleReception</a> function.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_FileSampleReception">SMDI_FileSampleReception</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_FileSampleReception"></a><h3>4.3.9. <a href="#SMDI_FileSampleReception">SMDI_FileSampleReception</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_FileSampleReception</b> function must be called after a
+    successful call of the <a
+    href="#SMDI_InitFileSampleReception">SMDI_InitFileSampleReception</a>
+    function. On each call, it receives the next data packet from the
+    sampler and stores it into the file until there are no more packets to
+    receive.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_FileSampleReception ( SMDI_FileTransmissionInfo * lpFileTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpFileTransmissionInfo</i>
+    <dd>	A pointer to the <a href="#SMDI_FileTransmissionInfo">SMDI_FileTransmissionInfo</a> structure which has been used in the call of <a href="#SMDI_InitFileSampleReception">SMDI_InitFileSampleReception</a>.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_DATAPACKET">SMDIM_DATAPACKET</a>. This means that the data
+    packet has been received and stored into the local file successfully and
+    that the sampler is ready to send the next one. In this case, you have
+    to call the <b>SMDI_FileSampleReception</b> function again. If the
+    sample transfer has ended successfully, the expected return value is <a
+    href="#SMDIM_ENDOFPROCEDURE">SMDIM_ENDOFPROCEDURE</a>. In this case, you
+    <b>must not</b> call this function again.</dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Internally, this function uses the <a
+    href="#SMDI_SampleReception">SMDI_SampleReception</a> function and only
+    adds support for file formats.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a 
+    href="#SMDI_InitFileSampleReception">SMDI_InitFileSampleReception</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_InitSampleTransmission"></a><h3>4.3.10. <a href="#SMDI_InitSampleTransmission">SMDI_InitSampleTransmission</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_InitSampleTransmission</b> initiates a sample transmission
+    from the computer to the sampler.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>unsigned long SMDI_InitSampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpTransmissionInfo</i>
+    <dd>	A pointer to a <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure. Before you call this function, you have to fill the following members of the structure:
+    <dl><dd>	<code>lpSampleHeader</code></dl>
+    <dl><dd>	<code>dwPacketSize</code></dl>
+    <dl><dd>	<code>dwSampleNumber</code></dl>
+    <dl><dd>	<code>dwCopyMode</code></dl>
+    <dl><dd>	<code>SCSI_ID</code></dl>
+    <dd>	The <i>lpSamplerHeader</i> member should be filled with the address of a <b>filled</b> <a href="#SMDI_SampleHeader">SMDI_SampleHeader</a> structure.
+    <dd>	The <i>dwPacketSize</i> member should be filled with a suggested packet size in bytes, for example 16384 or 65536.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_SENDNEXTPACKET">SMDIM_SENDNEXTPACKET</a>. If an error
+    occured, other possible return values are:</dl>
+    <dl><dl>
+    <dd>	<a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd>	<a href="#SMDIE_NOMEMORY">SMDIE_NOMEMORY</a>
+    <dd>	<a href="#SMDIE_UNSUPPSAMBITS">SMDIE_UNSUPPSAMBITS</a>
+    </dl></dl>
+
+    <dl><dd>If this function returned SMDIM_SENDNEXTPACKET, the <i>dwPacketSize</i>
+    member of the <i>SMDI_TransmissionInfo</i> structure contains the size
+    of each packet in bytes. Before you call the <a
+    href="#SMDI_SampleTransmission">SMDI_SampleTransmission</a> function,
+    you'll have to allocate at least that much memory and enter its address
+    into the <i>lpSampleData</i> member of the structure. Before each call
+    of <i>SMDI_SampleTransmission</i> you'll have to re-fill this memory
+    with the sample data of the next data packet.</dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_SampleTransmission"></a><h3>4.3.11. <a href="#SMDI_SampleTransmission">SMDI_SampleTransmission</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_SampleTransmission</b> function transmits the next data
+    packet, whose size is stored in the <i>dwPacketSize</i> and address in 
+    the <i>lpSampleData</i> member of the <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a>
+    structure, from the computer to the sampler after a call of <a
+    href="#SMDI_InitSampleTransmission">SMDI_InitSampleTransmission</a>.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_InitSampleTransmission ( SMDI_TransmissionInfo * lpTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpTransmissionInfo</i>
+    <dd>	A pointer to the <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure which has been used in all previous calls of <b>SMDI_SampleTransmission</b> and <a href="#SMDI_InitSampleTransmission">SMDI_InitSampleTransmission</a>.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_SENDNEXTPACKET">SMDIM_SENDNEXTPACKET</a> if there's one
+    more packet to send. In this case, you have to call this function again.
+    In the case that the return value is <a
+    href="#SMDIM_ENDOFPROCEDURE">SMDIM_ENDOFPROCEDURE</a>, the sample has
+    been send successfully and you <b>must not</b> call this function
+    again.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_InitSampleTransmission">SMDI_InitSampleTransmission</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_InitSampleReception"></a><h3>4.3.12. <a href="#SMDI_InitSampleReception">SMDI_InitSampleReception</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_InitSampleReception</b> function initiates a sample
+    transmission from the sampler to the computer.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_InitSampleReception ( SMDI_TransmissionInfo * lpTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpTransmissionInfo</i>
+    <dd>	A pointer to a <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure.
+    <dd>	Before a call of this function, you have to enter the following members of the structure:
+    <dl><dd>	<code>lpSampleHeader</code></dl>
+    <dl><dd>	<code>dwSampleNumber</code></dl>
+    <dl><dd>	<code>dwCopyMode</code></dl>
+    <dl><dd>	<code>SCSI_ID</code></dl>
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_TRANSFERACKNOWLEDGE">SMDIM_TRANSFERACKNOWLEDGE</a>. This
+    means that the sampler is ready to send the next data packet. You'll
+    then have to call the <a
+    href="#SMDI_SampleReception">SMDI_SampleReception</a> function. If an
+    error occurred, other possible return values are:</dl>
+    <dl><dl>
+    <dd>	<a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd>	<a href="#SMDIE_NOSAMPLE">SMDIE_NOSAMPLE</a>
+    </dl></dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_SampleReception">SMDI_SampleReception</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_SampleReception"></a><h3>4.3.13. <a href="#SMDI_SampleReception">SMDI_SampleReception</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_SampleReception</b> function transmits the next data packet,
+    whose size is stored in the <i>dwPacketSize</i> and address in the
+    <i>lpSampleData</i> member of the <a
+    href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure, from
+    the sampler to the computer after a call of <a
+    href="#SMDI_InitSampleReception">SMDI_InitSamplereception</a>.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd>	<b>DWORD SMDI_SampleReception ( SMDI_TransmissionInfo * lpTransmissionInfo );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>lpTransmissionInfo</i>
+    <dd>	A pointer to the <a href="#SMDI_TransmissionInfo">SMDI_TransmissionInfo</a> structure which has been used in all previous calls of <b>SMDI_SampleReception</b> and <a href="#SMDI_InitSampleReception">SMDI_InitSampleReception</a>.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_DATAPACKET">SMDIM_DATAPACKET</a>. This means that the data
+    packet has successfully been received and stored into the memory whose
+    address is stored in the <i>lpSampleData</i> member of the
+    <i>SMDI_TransmissionInfo</i> structure, and that the sampler is ready to
+    send the next one. If the sample transfer has ended successfully, the
+    expected return value is <a
+    href="#SMDIM_ENDOFPROCEDURE">SMDIM_ENDOFPROCEDURE</a>. In this case,
+    you <b>must not</b> call this function again.</dl>
+
+    <h3>See Also</h3>
+    <dl><dd><a href="#SMDI_InitSampleReception">SMDI_InitSampleReception</a></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_SampleHeaderRequest"></a><h3>4.3.14. <a href="#SMDI_SampleHeaderRequest">SMDI_SampleHeaderRequest</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_SampleHeaderRequest</b> function receives information about
+    a sample in a specified memory location of a specified sampler.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_SampleHeaderRequest ( BYTE HA_ID, BYTE SCSI_ID, DWORD dwSampleNumber, SMDI_SampleHeader * lpSampleHeader );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>HA_ID</i>
+    <dd>	The host adapter number to which the device is attached.
+    <dt><i>SCSI_ID</i>
+    <dd>	The device's SCSI ID.
+    <dt><i>dwSampleNumber</i>
+    <dd>	The memory location in the sampler where the sample about which you want to have information is stored.
+    <dt><i>lpSampleHeader</i>
+    <dd>	A pointer to a <a href="#SMDI_SampleHeader">SMDI_SampleHeader</a> structure which will be filled with the sample information.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>The expected return value is <a
+    href="#SMDIM_SAMPLEHEADER">SMDIM_SAMPLEHEADER</a>. If an error occured,
+    other possible return values are:
+    <dl>
+    <dd>	<a href="#SMDIE_OUTOFRANGE">SMDIE_OUTOFRANGE</a>
+    <dd>	<a href="#SMDIE_NOSAMPLE">SMDIE_NOSAMPLE</a>
+    </dl></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_GetFileSampleHeader"></a><h3>4.3.15. <a href="#SMDI_GetFileSampleHeader">SMDI_GetFileSampleHeader</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_GetFileSampleHeader</b> function does the same as the <a
+    href="#SMDI_SampleHeaderRequest">SMDI_SampleHeaderRequest</a> function,
+    but retrieves the sample information from a file on a local disk.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_GetFileSampleHeader ( char cFileName[MAX_PATH], SMDI_SampleHeader * lpSampleHeader );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>cFileName</i>
+    <dd>	Specifies the file from which the desired sample information is extracted.
+    <dt><i>lpSampleHeader</i>
+    <dd>	A pointer to a <a href="#SMDI_SampleHeader">SMDI_SampleHeader</a> structure which will be filled with the information.
+    </dl></dl>
+
+    <h3>Return Values</h3>
+    <dl><dd>An expected return value is any of the <a href="#FileType">file type</a>
+    constants which indicates with what file format you're dealing.
+    Otherwise, any of the <a href="#FileError">file error</a> constants is
+    returned. Therefore, currently possible return values are:
+    <dl>
+    <dd>	<a href="#FT_WAV">FT_WAV</a>
+    <dd>	<a href="#FE_OPENERROR">FE_OPENERROR</a>
+    <dd>	<a href="#FE_UNKNOWNFORMAT">FE_UNKNOWNFORMAT</a>
+    </dl></dl>
+  </td>
+</tr>
+</table>
+</center>
+
+
+<a name="SMDI_DeleteSample"></a><h3>4.3.16. <a href="#SMDI_DeleteSample">SMDI_DeleteSample</a></h3>
+<center>
+<table width="95%" align="center" cellpadding="8" cellspacing="2" border="0" cols="1" bgcolor="#eeeeee">
+<tr>
+  <td align="ledt" valign="top">
+    <h3>Description</h3>
+    <dl><dd>The <b>SMDI_DeleteSample</b> function deletes a sample from the
+    sampler's memory.</dl>
+
+    <h3>Definition</h3>
+    <dl><dd><b>DWORD SMDI_DeleteSample ( BYTE HA_ID, BYTE SCSI_ID, DWORD dwSampleNumber );</b></dl>
+
+    <h3>Parameters</h3>
+    <dl><dl>
+    <dt><i>HA_ID</i>
+    <dd>	The host adapter number to which the device is attached.
+    <dt><i>SCSI_ID</i>
+    <dd>	The device's SCSI ID.
+    <dt><i>dwSampleNumber</i>
+    <dd>	The memory location in the sampler where the sample to be deleted is.
+    </dl></dl>
+
+    <h3>Remarks</h3>
+    <dl><dd>Since my sampler does not support sample deletion via SMDI, I can't tell
+    what return values are possible at all.</dl>
+  </td>
+</tr>
+</table>
+</center>
+
+</body>
+
+</html>
+

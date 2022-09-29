@@ -1,0 +1,31 @@
+These things need to be done, some more urgent than others:
+
+  - Delphi example that links with smdi.dll
+  - Maybe(!) a Windows C example program with a GUI (this is actually done 
+    by me, it just needs to be changed to use smdi.dll instead of its own 
+    built-in functions)
+  - Error checking after calls of "malloc" in smdi.c
+    (This is a known bug. There will be segment violations when no memory 
+    could be allocated)
+  - More example code in smdi.html
+  - (*) Proof reading of smdi.html
+  - Integration of SoX (maybe), OR optionally built-in support for 
+    more file formats
+  - (*) Tests with as many samplers as possible (needs smdixfer to be finished)
+  - MIDI sample dump through SCSI for Akai samplers (Jon a.k.a. earache??)
+  - Ports to BeOS, Unix and MacOS (not urgent)
+  - Under some circumstances the current handling of the .dwStructSize 
+    member of the structures will cause a segment violation (this is a 
+    known bug)
+  - (*) Upload the library to sites like simtel.net
+  - Optional access to generic SCSI device drivers other than 
+    "/dev/sg[a...]" under Linux, maybe with a new function call (silly) 
+    or a new #define in the source (better)
+  - (*) A proper "Powered by OpenSMDI" button :-) maybe more than one
+  - (*) A well-designed+informative standard HTML 3.2 or 4.0 web presence
+
+(*) These things can be done by non-programmers
+
+
+-- Christian Nowak <chnowak@web.de, cnowak@kdt.de, opensmdi@teklab.com> --
+

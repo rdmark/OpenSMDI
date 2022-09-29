@@ -1,0 +1,43 @@
+# Makefile of SMDI.DLL for LCC-Win32
+
+LCCBASEDIR=c:\programme\lcc
+WNASPI32DLL=wnaspi32.dll
+
+OBJS=
+LIBS=wnaspi32.lcc-win32.lib
+BINDIR=bin\win32\lcc-win32
+
+SMDI_DLL=$(BINDIR)\smdi.dll
+ASPI_WIN32_OBJ=$(BINDIR)\aspi.win32.obj
+SMDI_OBJ=$(BINDIR)\smdi.obj
+
+SMDI_SRC=aspi.win32.c wnaspi32.c smdi.c
+
+# The compiler
+INCDIR=$(LCCBASEDIR)\include
+CC=$(LCCBASEDIR)\bin\lcc.exe
+CFLAGS=-I$(INCDIR)  -O -Zp1
+
+# The linker
+LNK=$(LCCBASEDIR)\bin\lcclnk.exe
+LFLAGS=-s -dll
+
+
+# --
+
+$(SMDI_DLL): $(ASPI_WIN32_OBJ) $(OBJS) $(SMDI_OBJ) $(LIBS)
+	$(LNK) $(LFLAGS) -o $(SMDI_DLL) $(SMDI_OBJ) $(ASPI_WIN32_OBJ) $(OBJS) $(LIBS)
+
+$(SMDI_OBJ): smdi.c
+	$(CC) -c -Fo$(SMDI_OBJ) $(CFLAGS) smdi.c
+
+$(ASPI_WIN32_OBJ): aspi.win32.c
+	$(CC) -c -Fo$(ASPI_WIN32_OBJ) $(CFLAGS) aspi.win32.c
+
+clean:
+	del $(SMDI_DLL)
+	del $(SMDI_OBJ)
+	del $(ASPI_WIN32_OBJ)
+	del $(BINDIR)\smdi.exp
+	del $(BINDIR)\smdi.lib
+

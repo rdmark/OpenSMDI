@@ -1,0 +1,105 @@
+
+	OpenSMDI release 0.05
+
+
+What is OpenSMDI ?
+
+  OpenSMDI is a retargetable standard SMDI library 
+  written from scratch by Christian Nowak.
+
+  It aims to be compatible with most samplers out 
+  there and to support many different sample file 
+  formats.
+
+  The library has been reported to work with the 
+  following samplers:
+
+    -  Ensoniq ASR-X (Pro)
+    -  Yamaha A3000
+
+  More reports about other samplers, whether they
+  work or not, are always welcome.
+
+  The following sample file formats are supported
+  in the current version of the library:
+
+    -  Windows RIFF WAVE
+
+  The following formats will be added in the not 
+  so distant future:
+
+    -  Apple AIFF
+    -  Creative Labs VOC
+
+On what hardware does it run ?
+
+  Currently it only runs on x86 based processors, 
+  running Windows or Linux. More processors, esp-
+  ecially M68k and PowerPC, as well as more oper-
+  ating systems such as Unices, MacOS, BeOS and 
+  OS/2 will probably be supported in the future.
+  Stay tuned.
+
+Compiling the library
+
+  Under Windows:
+  -  Rename the file 
+       Makefile.lcc-win32 or
+       Makefile.bcc or
+       Makefile.vcpp
+     to Makefile, depending on what compiler system 
+     you use.
+  -  In the Makefile, set VCPPBASEDIR, BCCBASEDIR 
+     or LCCWIN32BASEDIR to the base dir of your 
+     compiler.
+  -  Un-comment "#define _win32_" in the file "smdi.c"
+  -  In the command prompt, change to the root 
+     directory of the library.
+  -  Run "make".
+  -  All binaries should be placed in the directory 
+     .\bin\win32\lcc-win32
+                \vcpp
+                \bcc
+
+  Under Linux:
+  -  Rename the file "Makefile.linux" to "Makefile".
+  -  Un-comment "#define _linux_" in the file "smdi.c".
+  -  Adapt the "Makefile to your requirements.
+     It is already configured for the gcc compiler.
+  -  Change to the root directory of the library.
+  -  Run "make" 
+  -  Run "make install" to install it on your system.
+
+If something goes wrong
+
+  This is mostly due to a mis-configured Makefile. 
+  Please check if you set the basedir of your 
+  compiler system correctly in the Makefile (under 
+  windows). And please check if the options which 
+  are passed to your compiler and linker are correct.
+
+  If you're getting a whole bunch of errors when 
+  compiling, you most probably haven't un-commented
+  one of the #define's for determining your target
+  operating system (currently _win32_ and _linux_).
+
+  If your linker is complaining that it can't resolve 
+  the "Sleep" or "sleep" symbol, you can change the 
+  definition of __sleep in smdi.c accordingly. Under 
+  linux, this is most probably necessary.
+
+Using the library in your programs
+
+  Read the documentation for programmers. It can be 
+  found in "./doc/smdi.html". There's everything de-
+  scribed what you must know.
+
+About Compilers
+
+  You should be able to get a free copy of the LCC-
+  Win32 compiler at:
+    http://www.cs.virginia.edu/~lcc-win32/
+
+  The Borland bcc compiler is available for free on 
+  Borland's website:
+    http://www.borland.com/bcppbuilder/freecompiler/
