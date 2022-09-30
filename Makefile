@@ -6,9 +6,6 @@ SMDI_O = $(BINDIR)/smdi.o
 ASPI_LINUX_O = $(BINDIR)/aspi.linux.o
 LIBRARY = libsmdi.so.2
 
-# This one must probably be adjusted, depending on your system
-LIBPTHREADS = /usr/lib/libpthread.so
-
 default: $(SMDI_SO_2) $(SMDI_O)
 
 $(SMDI_SO_2): smdi.c $(ASPI_LINUX_O) $(SMDI_O)
